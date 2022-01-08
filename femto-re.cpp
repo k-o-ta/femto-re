@@ -3,7 +3,7 @@
 #include "femto-re.h"
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    debug("Hello, World!");
     BMP bmp;
     bmp.generate("ABC");
 

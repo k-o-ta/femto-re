@@ -9,6 +9,11 @@
 #include <vector>
 #include "characters.h"
 
+#define debug(m) debug_message(m, __FILE__, __LINE__)
+void debug_message(std::string message, const char *file, int line) {
+    std::cout << message << " at" << file << ":" << line << std::endl;
+}
+
 class BMP {
     std::byte file_type[2] = {std::byte{'B'}, std::byte{'M'}};
     std::byte file_size[4] = { std::byte{0xfe}, std::byte{0x0a}, std::byte{0}, std::byte{0} };
