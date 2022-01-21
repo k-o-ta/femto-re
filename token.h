@@ -6,8 +6,10 @@
 #define FEMTO_RE_TOKEN_H
 
 #include <optional>
+#include <memory>
 
 enum TokenKind {
+    // TK_TAGにrename
     TK_START_TAG,
     TK_CHAR
 };
@@ -26,8 +28,10 @@ public:
 class Token {
 public:
     TokenKind kind;
+    // TODO: start_or_end_tagにrenameする
     std::optional<StartOrEndTag> start_tag;
     std::optional<char> c;
+    std::shared_ptr<Token> next;
 
     explicit Token(StartOrEndTag start_tag): kind(TK_START_TAG), start_tag(start_tag) {}
     explicit Token(char c): kind(TK_CHAR), c(c) {}
@@ -44,7 +48,7 @@ enum TokenizationState {
 
 class Tokenizer {
 public:
-    Token tokenize(std::istream& istream);
+    std::shared_ptr<Token> tokenize(std::istream& istream);
 private:
     Token reconsume_tag_name_state(std::istream &istream, StartOrEndTag start_tag, char current_char);
     bool can_tokenize(std::string str);

@@ -8,18 +8,23 @@
 #include "token.h"
 
 
-Token Tokenizer::tokenize(std::istream &istream) {
+std::shared_ptr<Token> Tokenizer::tokenize(std::istream &istream) {
     char c;
-    std::vector<char> acc;
     switch (state) {
         case ST_DATA:
+            if (istream.eof()) {
+                return nullptr;
+            }
             istream >> c;
             if (c == '<') {
                 state = ST_TAG_OPEN;
                 return tokenize(istream);
             }
             if (std::isalnum(c) || std::isspace(c)) {
-                return Token(c);
+                auto token = std::make_shared<Token>(Token(c));
+                auto next = tokenize(istream);
+                token->next = next;
+                return token;
             }
             break;
         case ST_TAG_OPEN:
@@ -31,14 +36,20 @@ Token Tokenizer::tokenize(std::istream &istream) {
             if (std::isalnum(c)) {
                 StartOrEndTag start_tag{TAG_START};
                 state = ST_TAG_NAME;
-                return reconsume_tag_name_state(istream, start_tag, c);
+                auto token = std::make_shared<Token>(reconsume_tag_name_state(istream, start_tag, c));
+                auto next = tokenize(istream);
+                token->next = next;
+                return token;
             }
         case ST_END_TAG_OPEN:
             c = consume(istream);
             if (std::isalnum(c)) {
                 StartOrEndTag end_tag{TAG_END};
                 state = ST_TAG_NAME;
-                return reconsume_tag_name_state(istream, end_tag, c);
+                auto token = std::make_shared<Token>(reconsume_tag_name_state(istream, end_tag, c));
+                auto next = tokenize(istream);
+                token->next = next;
+                return token;
             }
     }
 }
