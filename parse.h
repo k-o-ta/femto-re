@@ -15,7 +15,9 @@ enum InsertionMode {
     MD_BEFORE_HEAD,
     MD_IN_HEAD,
     MD_AFTER_HEAD,
-    MD_IN_BODY
+    MD_IN_BODY,
+    MD_AFTER_BODY,
+    MD_AFTER_AFTER_BODY
 };
 
 class Parser {
@@ -34,6 +36,8 @@ private:
     Node parse_at_in_head(std::shared_ptr<Token> token);
     Node parse_at_after_head(std::shared_ptr<Token> token);
     Node parse_at_in_body(std::shared_ptr<Token> token);
+    Node parse_at_after_body(std::shared_ptr<Token> token);
+    Node parse_at_after_after_body(std::shared_ptr<Token> token);
     std::shared_ptr<Node> current_node();
     void insert_html_element_for_the_token(std::shared_ptr<Element> element);
 };

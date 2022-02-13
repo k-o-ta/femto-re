@@ -13,7 +13,8 @@ std::shared_ptr<Token> Tokenizer::tokenize(std::istream &istream) {
     switch (state) {
         case ST_DATA:
             if (istream.eof()) {
-                return nullptr;
+                auto token = std::make_shared<Token>(Token {TK_EOF});
+                return token;
             }
             istream >> c;
             if (c == '<') {
@@ -47,8 +48,8 @@ std::shared_ptr<Token> Tokenizer::tokenize(std::istream &istream) {
                 StartOrEndTag end_tag{TAG_END};
                 state = ST_TAG_NAME;
                 auto token = std::make_shared<Token>(reconsume_tag_name_state(istream, end_tag, c));
-                auto next = tokenize(istream);
-                token->next = next;
+//                auto next = tokenize(istream);
+                token->next = tokenize(istream);
                 return token;
             }
     }
@@ -86,7 +87,8 @@ Token Tokenizer::reconsume_tag_name_state(std::istream &istream, StartOrEndTag s
     assert(state == ST_TAG_NAME);
     char c = current_char;
     std::vector<char> acc;
-    acc.push_back(tolower(c));
+// 先頭文字が重複してしまうのでいったん除いておく
+//    acc.push_back(tolower(c));
     while (c) {
         switch (c) {
             case '>':

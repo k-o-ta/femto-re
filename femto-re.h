@@ -8,6 +8,8 @@
 
 #include <vector>
 #include "characters.h"
+#include <iostream>
+#include <fstream>
 
 #define debug(m) debug_message(m, __FILE__, __LINE__)
 void debug_message(std::string message, const char *file, int line) {
@@ -108,6 +110,7 @@ class BMP {
 public:
     void generate(std::string str) {
         std::ofstream tmp("tmp.bmp", std::ios::out | std::ios::binary | std::ios::trunc);
+//        std::ofstream tmp("tmp.bmp");
         for (auto e : file_type)
             tmp.put((unsigned char)e);
         for (auto e : file_size2(str))

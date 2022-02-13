@@ -11,7 +11,8 @@
 enum TokenKind {
     // TK_TAGにrename
     TK_START_TAG,
-    TK_CHAR
+    TK_CHAR,
+    TK_EOF
 };
 
 enum StartOrEnd {
@@ -27,14 +28,14 @@ public:
 
 class Token {
 public:
-    TokenKind kind;
-    // TODO: start_or_end_tagにrenameする
+    TokenKind kind; // TODO: start_or_end_tagにrenameする
     std::optional<StartOrEndTag> start_tag;
     std::optional<char> c;
     std::shared_ptr<Token> next;
 
     explicit Token(StartOrEndTag start_tag): kind(TK_START_TAG), start_tag(start_tag) {}
     explicit Token(char c): kind(TK_CHAR), c(c) {}
+    explicit Token(TokenKind kind): kind(kind) {}
 //    std::optional<Token*> next;
 };
 
