@@ -35,13 +35,10 @@ class HTMLBodyElement;
 class Node {
 public:
     std::vector<std::shared_ptr<Node>> child_nodes;
-//    std::vector<std::shared_ptr<int>> foo;
     NodeKind kind;
     explicit Node(NodeKind kind): kind(kind) {}
     void paint();
-    virtual ~Node(void) {
-        std::cout << "destructure" << kind << std::endl;
-    }
+    virtual ~Node(void) {}
 };
 class Element: public Node {
 public:

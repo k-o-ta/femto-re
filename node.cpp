@@ -13,6 +13,7 @@ void Node::paint() {
               std::dynamic_pointer_cast<Text>(child)->paint();
               break;
           default:
+              child->paint();
               break;
       }
   }

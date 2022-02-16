@@ -15,10 +15,7 @@ int main() {
     Parser parser(tokenizer, str);
     parser.parse();
     std::cout << "parse finished" << std::endl;
-//    Hoo hoo{};
-//    hoo.print();
-    parser.document.paint();
-//    tokenizer.tokenize(str);
+    parser.document.body->paint();
 
     return 0;
 }
