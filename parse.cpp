@@ -3,39 +3,41 @@
 //
 
 #include <cassert>
+#include <iostream>
 #include "parse.h"
 
-Node Parser::parse(Tokenizer tokenizer, std::istream& istream) {
-    auto token = tokenizer.tokenize(istream);
+void Parser::parse() {
+    token = tokenizer.tokenize(istream);
 
-    auto html_element = parse_at_initial(token);
+    parse_at_initial();
+    document.body->paint();
 
 
-    // https://html.spec.whatwg.org/multipage/parsing.html#the-before-html-insertion-mode
-    insertion_mode = MD_IN_BODY;
-    while(token) {
-        switch(token->kind) {
-            case TK_START_TAG:
-                if (token->start_tag.value().name == "div") {
-
-                }
-                break;
-
-        }
-//        token = token->next;
-        token = std::move(token->next);
-    }
+//    // https://html.spec.whatwg.org/multipage/parsing.html#the-before-html-insertion-mode
+//    insertion_mode = MD_IN_BODY;
+//    while(token) {
+//        switch(token->kind) {
+//            case TK_START_TAG:
+//                if (token->start_tag.value().name == "div") {
+//
+//                }
+//                break;
+//
+//        }
+////        token = token->next;
+//        token = std::move(token->next);
+//    }
 }
 
-Node Parser::parse_at_initial(std::shared_ptr<Token> token) {
+void Parser::parse_at_initial() {
     // https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode
     assert(insertion_mode == MD_INITIAL);
     insertion_mode = MD_BEFORE_HTML;
 
-    return parse_at_before_html(token);
+    return parse_at_before_html();
 }
 
-Node Parser::parse_at_before_html(std::shared_ptr<Token> token) {
+void Parser::parse_at_before_html() {
     // https://html.spec.whatwg.org/multipage/parsing.html#the-before-html-insertion-mode
     assert(insertion_mode == MD_BEFORE_HTML);
 
@@ -48,10 +50,17 @@ Node Parser::parse_at_before_html(std::shared_ptr<Token> token) {
     insertion_mode = MD_BEFORE_HEAD;
 
     token = token->next;
-    return parse_at_before_head(token);
+
+    auto head = parse_at_before_head();
+    document.head = &head;
+
+    auto body =  parse_at_after_head();
+    document.body = body;
+
+    return;
 }
 
-Node Parser::parse_at_before_head(std::shared_ptr<Token> token) {
+HTMLHeadElement Parser::parse_at_before_head() {
     // https://html.spec.whatwg.org/multipage/parsing.html#the-before-head-insertion-mode
     assert(insertion_mode == MD_BEFORE_HEAD);
     if (token->kind == TK_START_TAG && token->start_tag.value().name == "head") {
@@ -61,11 +70,12 @@ Node Parser::parse_at_before_head(std::shared_ptr<Token> token) {
         insertion_mode = MD_IN_HEAD;
 
         token = token->next;
-        return parse_at_in_head(token);
+        parse_at_in_head( head_element);
+        return head_element;
     }
 }
 
-Node Parser::parse_at_in_head(std::shared_ptr<Token> token) {
+void Parser::parse_at_in_head(HTMLHeadElement& head_element) {
     // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inhead
     assert(insertion_mode == MD_IN_HEAD);
 
@@ -74,26 +84,28 @@ Node Parser::parse_at_in_head(std::shared_ptr<Token> token) {
         insertion_mode = MD_AFTER_HEAD;
 
         token = token->next;
-        return parse_at_after_head(token);
+        return;
     }
-
 }
 
-Node Parser::parse_at_after_head(std::shared_ptr<Token> token) {
+std::shared_ptr<HTMLBodyElement> Parser::parse_at_after_head() {
     // https://html.spec.whatwg.org/multipage/parsing.html#the-after-head-insertion-mode
     assert(insertion_mode == MD_AFTER_HEAD);
 
     if (token->kind == TK_START_TAG && token->start_tag.value().name == "body") {
        auto body_element = HTMLBodyElement{};
-       auto body_element_pointer = std::make_shared<Element>(body_element);
+       auto body_element_pointer = std::make_shared<HTMLBodyElement>(body_element);
        insert_html_element_for_the_token(body_element_pointer);
        insertion_mode = MD_IN_BODY;
        token =  token->next;
-       return parse_at_in_body(token);
+       parse_at_in_body(body_element_pointer);
+
+//       HTMLBodyElement foo = body_element_pointer.get();
+       return body_element_pointer;
     }
 }
 
-Node Parser::parse_at_in_body(std::shared_ptr<Token> token) {
+void Parser::parse_at_in_body(std::shared_ptr<HTMLBodyElement> body_element_pointer) {
     // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
     assert(insertion_mode == MD_IN_BODY);
 
@@ -101,8 +113,9 @@ Node Parser::parse_at_in_body(std::shared_ptr<Token> token) {
         auto div_element = HtmlDivElement {};
         auto div_element_pointer = std::make_shared<HtmlDivElement>(div_element);
         insert_html_element_for_the_token(div_element_pointer);
+
         token = token->next;
-        return parse_at_in_body(token);
+        return parse_at_in_body(body_element_pointer);
     }
     if (token->kind == TK_CHAR) {
         // https://www.w3.org/TR/2011/WD-html5-20110113/tokenization.html#insert-a-character
@@ -111,10 +124,6 @@ Node Parser::parse_at_in_body(std::shared_ptr<Token> token) {
         if (current->child_nodes.size() == 0) {
             auto text = Text {};
             text.data = token->c.value();
-//            text.v = 3;
-//            auto tmp = std::make_shared<Text>(text);
-//            auto tmp2 = std::dynamic_pointer_cast<Node>(tmp);
-//            auto tmp3 = std::static_pointer_cast<Text>(tmp2);
             current->child_nodes.push_back(std::make_shared<Text>(text));
         } else if (current->child_nodes.size() == 1) {
             auto child = current->child_nodes[0];
@@ -127,35 +136,39 @@ Node Parser::parse_at_in_body(std::shared_ptr<Token> token) {
         } else {
             throw std::runtime_error("child node size must be under 1 when insert char");
         }
-        auto child = std::static_pointer_cast<Text>(current->child_nodes[0]);
         token = token->next;
-        return parse_at_in_body(token);
+        if (token->kind != TK_CHAR) {
+            auto child = std::static_pointer_cast<Text>(current->child_nodes[0]);
+            auto last_open_element = stack_of_open_elements[stack_of_open_elements.size()-1];
+            last_open_element->child_nodes.push_back(child);
+        }
+        return parse_at_in_body(body_element_pointer);
     }
     if (token->kind == TK_START_TAG && token->start_tag.value().start_or_end == TAG_END && token->start_tag.value().name == "div") {
         stack_of_open_elements.pop_back();
 
         token = token->next;
-        return parse_at_in_body(token);
+        return parse_at_in_body(body_element_pointer);
     }
     if (token->kind == TK_START_TAG && token->start_tag.value().start_or_end == TAG_END && token->start_tag.value().name == "body") {
         insertion_mode = MD_AFTER_BODY;
         token = token->next;
-        return parse_at_after_body(token);
+        return parse_at_after_body();
     }
 }
 
-Node Parser::parse_at_after_body(std::shared_ptr<Token> token) {
+void Parser::parse_at_after_body() {
     // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-afterbody
     assert(insertion_mode == MD_AFTER_BODY);
 
     if (token->kind == TK_START_TAG && token->start_tag.value().start_or_end == TAG_END && token->start_tag.value().name == "html") {
         insertion_mode = MD_AFTER_AFTER_BODY;
         token = token->next;
-        return parse_at_after_after_body(token);
+        return parse_at_after_after_body();
     }
 }
 
-Node Parser::parse_at_after_after_body(std::shared_ptr<Token> token) {
+void Parser::parse_at_after_after_body() {
     // https://html.spec.whatwg.org/multipage/parsing.html#the-after-after-body-insertion-mode
     assert(insertion_mode == MD_AFTER_AFTER_BODY);
 

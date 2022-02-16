@@ -17,6 +17,10 @@ std::shared_ptr<Token> Tokenizer::tokenize(std::istream &istream) {
                 return token;
             }
             istream >> c;
+            if (c == 0) {
+                auto token = std::make_shared<Token>(Token {TK_EOF});
+                return token;
+            }
             if (c == '<') {
                 state = ST_TAG_OPEN;
                 return tokenize(istream);

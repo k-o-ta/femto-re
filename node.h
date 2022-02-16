@@ -20,12 +20,28 @@ enum NodeKind {
     ND_TEXT
 };
 
+//class Hoo {
+//public:
+//    std::vector<std::shared_ptr<int>> bar;
+//    void print();
+//    virtual ~Hoo(void) {
+//        std::cout << "destructure Hoo" << std::endl;
+//    }
+//};
+
+class HTMLHeadElement;
+class HTMLBodyElement;
+
 class Node {
 public:
     std::vector<std::shared_ptr<Node>> child_nodes;
+//    std::vector<std::shared_ptr<int>> foo;
     NodeKind kind;
     explicit Node(NodeKind kind): kind(kind) {}
     void paint();
+    virtual ~Node(void) {
+        std::cout << "destructure" << kind << std::endl;
+    }
 };
 class Element: public Node {
 public:
@@ -38,10 +54,13 @@ public:
 // https://dom.spec.whatwg.org/#interface-document
 // https://developer.mozilla.org/ja/docs/Web/API/Document
 // https://dom.spec.whatwg.org/#introduction-to-the-dom
-class Document: Node {
+// https://html.spec.whatwg.org/multipage/dom.html#document
+class Document: public Node {
 public:
     std::shared_ptr<Element> document_element;
     explicit Document(): Node{ND_DOCUMENT} {}
+    HTMLHeadElement *head;
+    std::shared_ptr<HTMLBodyElement> body;
 };
 
 class HtmlElement: public Element {
@@ -77,6 +96,8 @@ public:
     std::string data;
     explicit CharacterData(): Node { ND_CHARACTER_DATA} {}
     explicit CharacterData(NodeKind kind): Node { kind} {}
+
+    void paint();
 };
 class Text: public CharacterData {
 public:

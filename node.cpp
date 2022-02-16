@@ -8,7 +8,13 @@
 
 void Node::paint() {
   for (auto child:child_nodes) {
-      child->paint();
+      switch(child->kind) {
+          case ND_TEXT:
+              std::dynamic_pointer_cast<Text>(child)->paint();
+              break;
+          default:
+              break;
+      }
   }
 }
 
@@ -17,3 +23,13 @@ void Text::paint() {
 //    BMP bmp;
 //    bmp.generate("BBC");
 }
+
+void CharacterData::paint() {
+    std::cout << data << std::endl;
+//    BMP bmp;
+//    bmp.generate("BBC");
+}
+
+//void Hoo::print() {
+//    std::cout << "print Hoo" << std::endl;
+//}

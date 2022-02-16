@@ -11,9 +11,13 @@ int main() {
     bmp.generate("ABC");
     Tokenizer tokenizer;
 //    std::string input = "ABC";
-    std::istringstream str("<html><head></head><body>ABC</body></html>");
-    Parser parser;
-    parser.parse(tokenizer, str);
+    std::istringstream str("<html><head></head><body><div>ABC</div></body></html>");
+    Parser parser(tokenizer, str);
+    parser.parse();
+    std::cout << "parse finished" << std::endl;
+//    Hoo hoo{};
+//    hoo.print();
+    parser.document.paint();
 //    tokenizer.tokenize(str);
 
     return 0;
