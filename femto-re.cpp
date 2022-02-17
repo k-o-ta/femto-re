@@ -4,13 +4,11 @@
 #include "femto-re.h"
 #include "token.h"
 #include "parse.h"
+#include "bmp.h"
 
 int main() {
     debug("Hello, World!");
-    BMP bmp;
-    bmp.generate("ABC");
     Tokenizer tokenizer;
-//    std::string input = "ABC";
     std::istringstream str("<html><head></head><body><div>ABC</div></body></html>");
     Parser parser(tokenizer, str);
     parser.parse();
