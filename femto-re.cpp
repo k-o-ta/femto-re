@@ -5,6 +5,7 @@
 #include "token.h"
 #include "parse.h"
 #include "bmp.h"
+#include "util.h"
 
 int main() {
     debug("Hello, World!");

@@ -5,6 +5,7 @@
 #include <iostream>
 #include "node.h"
 #include "bmp.h"
+#include "util.h"
 //#include "femto-re.h"
 
 void Node::paint() {
@@ -21,7 +22,7 @@ void Node::paint() {
 }
 
 void Text::paint() {
-    std::cout << data << std::endl;
+    debug(data);
     BMP bmp;
     bmp.generate(data);
 //    BMP bmp;
