@@ -8,6 +8,7 @@
 #include <vector>
 #include "token.h"
 #include "node.h"
+#include "render.h"
 
 enum InsertionMode {
     MD_INITIAL,
@@ -28,6 +29,8 @@ public:
     void parse();
     std::shared_ptr<Element> head_element_pointer;
     explicit Parser(Tokenizer tokenizer, std::istream& istream): tokenizer(tokenizer), istream(istream) {}
+    std::shared_ptr<RenderObject> render_root;
+    std::shared_ptr<RenderObject> latest_render_object;
 
 private:
     Tokenizer tokenizer;

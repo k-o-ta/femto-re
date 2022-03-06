@@ -6,8 +6,14 @@
 #define FEMTO_RE_COMMAND_H
 
 
-class Command {
+#include <string>
 
+class Command {
+};
+
+class ShowTextCommand: public Command {
+public:
+    ShowTextCommand(std::string text);
 };
 
 

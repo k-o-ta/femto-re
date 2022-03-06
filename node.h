@@ -39,6 +39,7 @@ public:
     explicit Node(NodeKind kind): kind(kind) {}
     void paint();
     virtual ~Node(void) {}
+    std::shared_ptr<Node> parent;
 };
 class Element: public Node {
 public:

@@ -1,10 +1,7 @@
 #include <iostream>
-#include <fstream>
-#include <sstream>
-#include "femto-re.h"
 #include "token.h"
 #include "parse.h"
-#include "bmp.h"
+#include "window.h"
 #include "util.h"
 
 int main() {
@@ -16,5 +13,7 @@ int main() {
     std::cout << "parse finished" << std::endl;
     parser.document.body->paint();
 
-    return 0;
+    auto app = Gtk::Application::create();
+    Window window(320, 240);
+    return app->run(window);
 }

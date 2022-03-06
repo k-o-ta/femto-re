@@ -5,6 +5,7 @@
 #include <cassert>
 #include <iostream>
 #include "parse.h"
+#include "render.h"
 
 void Parser::parse() {
     token = tokenizer.tokenize(istream);
@@ -25,10 +26,14 @@ void Parser::parse_at_before_html() {
     assert(insertion_mode == MD_BEFORE_HTML);
 
     // https://html.spec.whatwg.org/multipage/parsing.html#create-an-element-for-the-token
-    auto html = HTMLHtmlElement{};
-    html.parent_node = &html;
-    document.document_element = std::make_shared<Element>(html);
-    stack_of_open_elements.push_back(std::make_shared<Element>(html));
+    auto html = std::make_shared<HTMLHtmlElement>();
+//    auto html = HTMLHtmlElement{};
+//    html->parent_node = &html;
+    document.document_element = html;
+    stack_of_open_elements.push_back(html);
+    render_root = std::make_shared<RenderObject>(html);
+    latest_render_object = render_root;
+//    render_root->
 
     insertion_mode = MD_BEFORE_HEAD;
 
@@ -93,9 +98,22 @@ void Parser::parse_at_in_body(std::shared_ptr<HTMLBodyElement> body_element_poin
 
     if (token->kind == TK_START_TAG && token->start_tag.value().start_or_end == TAG_START &&
         token->start_tag.value().name == "div") {
-        auto div_element = HtmlDivElement{};
-        auto div_element_pointer = std::make_shared<HtmlDivElement>(div_element);
-        insert_html_element_for_the_token(div_element_pointer);
+//        auto div_element = HtmlDivElement{};
+        auto div_element = std::make_shared<HtmlDivElement>();
+        auto render_object = std::make_shared<RenderObject>(div_element);
+        insert_html_element_for_the_token(div_element);
+//        if (latest_render_object->node == div_element->parent) {
+//            latest_render_object->children.push_back(render_object);
+//        } else {
+//            auto parent = latest_render_object->node->parent;
+//            auto render_parent = latest_render_object;
+//            while(div_element->parent != parent) {
+//                parent = parent->parent;
+//                render_parent = render_parent->parent;
+//            }
+//            render_parent->children.push_back(render_object);
+//        }
+        latest_render_object = render_object;
 
         token = token->next;
         return parse_at_in_body(body_element_pointer);
@@ -158,6 +176,7 @@ void Parser::parse_at_after_after_body() {
 
 void Parser::insert_html_element_for_the_token(std::shared_ptr<Element> element) {
     // https://www.w3.org/TR/2011/WD-html5-20110113/tokenization.html#insert-an-html-element
+    element->parent = current_node();
     current_node()->child_nodes.push_back(element);
     stack_of_open_elements.push_back(element);
 }
