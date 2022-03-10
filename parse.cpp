@@ -7,21 +7,21 @@
 #include "parse.h"
 #include "render.h"
 
-void Parser::parse() {
+void Parser::parse(std::shared_ptr<Server> server) {
     token = tokenizer.tokenize(istream);
 
-    parse_at_initial();
+    parse_at_initial(server);
 }
 
-void Parser::parse_at_initial() {
+void Parser::parse_at_initial(std::shared_ptr<Server> server) {
     // https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode
     assert(insertion_mode == MD_INITIAL);
     insertion_mode = MD_BEFORE_HTML;
 
-    return parse_at_before_html();
+    return parse_at_before_html(server);
 }
 
-void Parser::parse_at_before_html() {
+void Parser::parse_at_before_html(std::shared_ptr<Server> server) {
     // https://html.spec.whatwg.org/multipage/parsing.html#the-before-html-insertion-mode
     assert(insertion_mode == MD_BEFORE_HTML);
 
@@ -32,6 +32,8 @@ void Parser::parse_at_before_html() {
     document.document_element = html;
     stack_of_open_elements.push_back(html);
     render_root = std::make_shared<RenderObject>(html);
+    render_root->server = server;
+//    render_root->node = html;
     latest_render_object = render_root;
 //    render_root->
 
@@ -81,14 +83,18 @@ std::shared_ptr<HTMLBodyElement> Parser::parse_at_after_head() {
     assert(insertion_mode == MD_AFTER_HEAD);
 
     if (token->kind == TK_START_TAG && token->start_tag.value().name == "body") {
-        auto body_element = HTMLBodyElement{};
-        auto body_element_pointer = std::make_shared<HTMLBodyElement>(body_element);
-        insert_html_element_for_the_token(body_element_pointer);
+        auto body_element = std::make_shared<HTMLBodyElement>();
+        insert_html_element_for_the_token(body_element);
+        auto render_object = std::make_shared<RenderObject>(body_element);
+        render_object->server = latest_render_object->server;
+//        render_object->node = body_element;
+        latest_render_object = render_object;
+
         insertion_mode = MD_IN_BODY;
         token = token->next;
-        parse_at_in_body(body_element_pointer);
+        parse_at_in_body(body_element);
 
-        return body_element_pointer;
+        return body_element;
     }
 }
 
@@ -101,18 +107,26 @@ void Parser::parse_at_in_body(std::shared_ptr<HTMLBodyElement> body_element_poin
 //        auto div_element = HtmlDivElement{};
         auto div_element = std::make_shared<HtmlDivElement>();
         auto render_object = std::make_shared<RenderObject>(div_element);
+        render_root->children.push_back(render_object);
+//        render_object->node = div_element;
+        render_object->server = latest_render_object->server;
         insert_html_element_for_the_token(div_element);
-//        if (latest_render_object->node == div_element->parent) {
-//            latest_render_object->children.push_back(render_object);
-//        } else {
+        // <なにか>
+        //   <div></div> <- これをrenderするパターン
+        // </なにか>
+        if (latest_render_object->node == div_element->parent) {
+            latest_render_object->children.push_back(render_object);
+        } else {
 //            auto parent = latest_render_object->node->parent;
-//            auto render_parent = latest_render_object;
-//            while(div_element->parent != parent) {
-//                parent = parent->parent;
-//                render_parent = render_parent->parent;
+//            if (parent) {
+//                auto render_parent = latest_render_object;
+//                while(div_element->parent != parent) {
+//                    parent = parent->parent;
+//                    render_parent = render_parent->parent;
+//                }
+//                render_parent->children.push_back(render_object);
 //            }
-//            render_parent->children.push_back(render_object);
-//        }
+        }
         latest_render_object = render_object;
 
         token = token->next;
@@ -123,9 +137,14 @@ void Parser::parse_at_in_body(std::shared_ptr<HTMLBodyElement> body_element_poin
 
         auto current = current_node();
         if (current->child_nodes.size() == 0) {
-            auto text = Text{};
-            text.data = token->c.value();
-            current->child_nodes.push_back(std::make_shared<Text>(text));
+//            auto text = Text{};
+            auto text = std::make_shared<Text>();
+            text->data = token->c.value();
+            auto render_object = std::make_shared<RenderObject>(text);
+            render_object->server = latest_render_object->server;
+            latest_render_object->children.push_back(render_object);
+            latest_render_object = render_object;
+            current->child_nodes.push_back(text);
         } else if (current->child_nodes.size() == 1) {
             auto child = current->child_nodes[0];
             if (child->kind == ND_TEXT) {

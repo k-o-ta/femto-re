@@ -26,7 +26,7 @@ public:
     Document document;
     // https://html.spec.whatwg.org/multipage/parsing.html#the-insertion-mode
     InsertionMode insertion_mode = {MD_INITIAL};
-    void parse();
+    void parse(std::shared_ptr<Server> server);
     std::shared_ptr<Element> head_element_pointer;
     explicit Parser(Tokenizer tokenizer, std::istream& istream): tokenizer(tokenizer), istream(istream) {}
     std::shared_ptr<RenderObject> render_root;
@@ -37,8 +37,8 @@ private:
     std::istream& istream;
     std::shared_ptr<Token> token;
     std::vector<std::shared_ptr<Element>> stack_of_open_elements;
-    void parse_at_initial();
-    void parse_at_before_html();
+    void parse_at_initial(std::shared_ptr<Server> server);
+    void parse_at_before_html(std::shared_ptr<Server> server);
     HTMLHeadElement parse_at_before_head();
     void parse_at_in_head(HTMLHeadElement& head_element);
     std::shared_ptr<HTMLBodyElement> parse_at_after_head();

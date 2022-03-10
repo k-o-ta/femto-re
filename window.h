@@ -6,14 +6,19 @@
 #define FEMTO_RE_WINDOW_H
 
 #include <gtkmm.h>
+#include <sigc++/sigc++.h>
 
-
+class Client {
+public:
+    void on_server_something(std::string text, int x, int y, int width, int height);
+};
 
 class MyArea : public Gtk::DrawingArea
 {
 public:
     MyArea();
     virtual ~MyArea();
+    void on_server_something(std::string text, int x, int y, int width, int height);
 
 protected:
     //Override default signal handler:
@@ -21,7 +26,8 @@ protected:
 
 private:
     void draw_rectangle(const Cairo::RefPtr<Cairo::Context>& cr, int width, int height);
-    void draw_text(const Cairo::RefPtr<Cairo::Context>& cr, int rectangle_width, int rectangle_height);
+    void draw_text(const Cairo::RefPtr<Cairo::Context>& cr, int rectangle_width, int rectangle_height, std::string text);
+    void draw_text2(const Cairo::RefPtr<Cairo::Context>& cr, std::string text, int rectangle_width, int rectangle_height);
 
 };
 
@@ -31,6 +37,7 @@ public:
     virtual ~Window() = default;
 //    Gtk::Button m_button;
     MyArea m_area;
+//    Client client;
 };
 
 class MyWindow {

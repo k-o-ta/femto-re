@@ -13,7 +13,7 @@ class Command {
 
 class ShowTextCommand: public Command {
 public:
-    ShowTextCommand(std::string text);
+    ShowTextCommand(std::string text, int x, int y, int width, int height);
 };
 
 

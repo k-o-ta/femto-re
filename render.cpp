@@ -2,9 +2,20 @@
 // Created by koji on 3/4/22.
 //
 
+#include <iostream>
 #include "render.h"
 
+Server::Server() {
 
+}
+
+void Server::draw_text(std::string text, int x, int y, int width, int height) {
+    m_signal_something.emit(text, x, y, width, height);
+}
+
+RenderObject::RenderObject(std::shared_ptr<Node> node): node{node}, done{false} {
+    std::cout << "constructor" << std::endl;
+}
 void RenderObject::layout() {
     if (done) {
         return;
@@ -28,6 +39,18 @@ void RenderObject::layout() {
 //    }
 }
 
+void RenderObject::paint() {
+    switch(node->kind) {
+        case ND_TEXT:
+            server->draw_text(std::dynamic_pointer_cast<Text>(node)->data, 0, 0, 100, 100);
+            break;
+        default:
+            for (auto child: children) {
+                child->paint();
+            }
+            break;
+    }
+}
 //RenderObject::RenderObject() {
 //
 //}
