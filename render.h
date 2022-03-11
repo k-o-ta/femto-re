@@ -9,13 +9,17 @@
 #include <memory>
 #include <vector>
 #include "node.h"
+#include "event.h"
 #include <sigc++/sigc++.h>
 
 class Server {
 public:
     typedef sigc::signal<void, std::string , int, int, int, int> type_signal_something;
     type_signal_something m_signal_something;
+    typedef sigc::signal<void, std::shared_ptr<Event>> type_signal_on_receive;
+    type_signal_on_receive m_signal_on_receive;
     void draw_text(std::string text, int x, int y, int width, int height);
+    void draw_text2(std::string text, int x, int y, int width, int height);
     Server();
 };
 

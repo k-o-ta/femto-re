@@ -99,10 +99,10 @@ int main() {
     auto server = std::make_shared<Server>();
 
 //    Client client{};
-    server->m_signal_something.connect(sigc::mem_fun(window.m_area, &MyArea::on_server_something));
+    server->m_signal_on_receive.connect(sigc::mem_fun(window.m_area, &MyArea::on_receive_event));
 
     std::thread t([&]{
-        sleep(1);
+//        sleep(1);
         parser.parse(server);
         std::cout << "parse finished" << std::endl;
 

@@ -7,18 +7,16 @@
 
 #include <gtkmm.h>
 #include <sigc++/sigc++.h>
+#include "event.h"
 
-class Client {
-public:
-    void on_server_something(std::string text, int x, int y, int width, int height);
-};
+class Client {};
 
 class MyArea : public Gtk::DrawingArea
 {
 public:
     MyArea();
     virtual ~MyArea();
-    void on_server_something(std::string text, int x, int y, int width, int height);
+    void on_receive_event(std::shared_ptr<Event> event);
 
 protected:
     //Override default signal handler:
@@ -27,7 +25,9 @@ protected:
 private:
     void draw_rectangle(const Cairo::RefPtr<Cairo::Context>& cr, int width, int height);
     void draw_text(const Cairo::RefPtr<Cairo::Context>& cr, int rectangle_width, int rectangle_height, std::string text);
-    void draw_text2(const Cairo::RefPtr<Cairo::Context>& cr, std::string text, int rectangle_width, int rectangle_height);
+    bool draw_text2(std::shared_ptr<ShowTextEvent> event);
+    std::vector<std::pair<std::shared_ptr<Event>, bool>> m_draw_events;
+    bool is_show_text_event(Event& event);
 
 };
 
