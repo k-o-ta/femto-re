@@ -23,11 +23,8 @@ protected:
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 
 private:
-    void draw_rectangle(const Cairo::RefPtr<Cairo::Context>& cr, int width, int height);
     void draw_text(const Cairo::RefPtr<Cairo::Context>& cr, int rectangle_width, int rectangle_height, std::string text);
-    bool draw_text2(std::shared_ptr<ShowTextEvent> event);
     std::vector<std::pair<std::shared_ptr<Event>, bool>> m_draw_events;
-    bool is_show_text_event(Event& event);
 
 };
 
