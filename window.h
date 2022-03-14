@@ -9,8 +9,6 @@
 #include <sigc++/sigc++.h>
 #include "event.h"
 
-class Client {};
-
 class MyArea : public Gtk::DrawingArea
 {
 public:
@@ -32,18 +30,8 @@ class Window : public Gtk::Window {
 public:
     Window(int width, int height);
     virtual ~Window() = default;
-//    Gtk::Button m_button;
     MyArea m_area;
-//    Client client;
 };
 
-class MyWindow {
-public:
-    MyWindow(int width, int height);
-    Gtk::Window& get_window();
-private:
-    Gtk::Window window;
-//    MyArea area;
-};
 
 #endif //FEMTO_RE_WINDOW_H
