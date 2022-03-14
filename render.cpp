@@ -4,9 +4,10 @@
 
 #include <iostream>
 #include "render.h"
+#include "util.h"
 
 void Server::draw_text(std::string text, int x, int y, int width, int height) {
-    m_signal_on_receive.emit(std::make_shared<ShowTextEvent>(ShowTextEvent{text}));
+    m_signal_on_receive.emit(std::make_shared<ShowTextEvent>(ShowTextEvent{text, x, y}));
 }
 
 void RenderObject::layout() {
@@ -33,7 +34,8 @@ void RenderObject::layout() {
 void RenderObject::paint() {
     switch (node->kind) {
         case ND_TEXT:
-            server->draw_text(std::dynamic_pointer_cast<Text>(node)->data, 0, 0, 100, 100);
+            debug(std::to_string(y));
+            server->draw_text(std::dynamic_pointer_cast<Text>(node)->data, x, y, 100, 100);
             break;
         default:
             for (auto child: children) {

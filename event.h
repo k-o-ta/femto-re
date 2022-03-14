@@ -16,9 +16,11 @@ public:
 
 class ShowTextEvent: public Event {
 public:
-    ShowTextEvent(std::string text): text{std::move(text)} {};
+    ShowTextEvent(std::string text, int x, int y): text{std::move(text)}, x{x}, y{y} {};
 //    ShowTextEvent(std::string text, int x, int y, int width, int height): text{std::move(text)} {};
     std::string text;
+    int x;
+    int y;
 };
 
 
