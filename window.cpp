@@ -17,11 +17,11 @@ Window::Window(int width, int height) {
     show_all_children();
 }
 
-MyArea::MyArea() {}
+RendererArea::RendererArea() {}
 
-MyArea::~MyArea() {}
+RendererArea::~RendererArea() {}
 
-bool MyArea::on_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
+bool RendererArea::on_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
     debug("on_draw");
     Gtk::Allocation allocation = get_allocation();
     const int window_width = allocation.get_width();
@@ -48,8 +48,8 @@ bool MyArea::on_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
     return true;
 }
 
-void MyArea::draw_text(const Cairo::RefPtr<Cairo::Context> &cr,
-                       int rectangle_width, int rectangle_height, std::shared_ptr<ShowTextEvent> show_text_event) {
+void RendererArea::draw_text(const Cairo::RefPtr<Cairo::Context> &cr,
+                             int rectangle_width, int rectangle_height, std::shared_ptr<ShowTextEvent> show_text_event) {
     // http://developer.gnome.org/pangomm/unstable/classPango_1_1FontDescription.html
     Pango::FontDescription font;
 
@@ -78,7 +78,7 @@ void MyArea::draw_text(const Cairo::RefPtr<Cairo::Context> &cr,
     layout->show_in_cairo_context(cr);
 }
 
-void MyArea::on_receive_event(std::shared_ptr<Event> event) {
+void RendererArea::on_receive_event(std::shared_ptr<Event> event) {
     const std::type_info &event_type = typeid(*event);
     debug(event_type.name());
     if (event_type == typeid(ShowTextEvent)) {

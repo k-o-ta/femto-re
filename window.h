@@ -9,11 +9,11 @@
 #include <sigc++/sigc++.h>
 #include "event.h"
 
-class MyArea : public Gtk::DrawingArea
+class RendererArea : public Gtk::DrawingArea
 {
 public:
-    MyArea();
-    virtual ~MyArea();
+    RendererArea();
+    virtual ~RendererArea();
     void on_receive_event(std::shared_ptr<Event> event);
 
 protected:
@@ -30,7 +30,7 @@ class Window : public Gtk::Window {
 public:
     Window(int width, int height);
     virtual ~Window() = default;
-    MyArea m_area;
+    RendererArea m_area;
 };
 
 

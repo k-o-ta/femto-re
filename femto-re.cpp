@@ -16,7 +16,7 @@ int main() {
     Window window(320, 240);
     auto server = std::make_shared<Server>();
 
-    server->m_signal_on_receive.connect(sigc::mem_fun(window.m_area, &MyArea::on_receive_event));
+    server->m_signal_on_receive.connect(sigc::mem_fun(window.m_area, &RendererArea::on_receive_event));
 
     std::thread t([&]{
         parser.parse(server);
